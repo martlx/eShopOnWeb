@@ -74,6 +74,20 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Check App Service region availability
+        uses: Azure/cli@v2
+        with:
+          inlineScript: |
+            echo "Current subscription:"
+            az account show --query "{name:name,id:id}" -o table
+
+            echo "Checking S1 regions:"
+            az appservice list-locations \
+              --sku S1 \
+              --linux-workers-enabled \
+              --query "[].{Name:name,DisplayName:displayName}" \
+              -o table          
 
       # Deploy Azure WebApp using Bicep file
       - name: deploy
